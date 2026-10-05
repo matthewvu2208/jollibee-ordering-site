@@ -1,0 +1,3 @@
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 · verified responsive widths: 320/375/414/768 */
+/* macrostructure: Catalogue · nav N12 · footer Ft2 · Jollibee red/white */
+:root { --paper: oklch(98.6% .005 70); --white: oklch(99.9% .001 70); --ink: oklch(24% .021 25); --subtle: oklch(48% .02 35); --line: oklch(90% .012 55); --red: oklch(53% .215 24); --red-dark: oklch(43% .18 24); --rose: oklch(97% .015 24); --yellow: oklch(91% .12 90); --font-body: 'Geist', sans-serif; --font-display: 'Bricolage Grotesque', sans-serif; }
