@@ -33,5 +33,9 @@ Test files: `tests/api-check.py` (local-only fake data); `tests/order-check.mjs`
 ## Sites publication
 Project id is preserved in `.openai/hosting.json`. Site registration initially succeeded; current connector returns `project_not_found` for that exact id, and no owned sites are listed. No successful public/private deployment has been confirmed. Restore access to the original Site before running the Sites publishing workflow; do not replace the id or create a duplicate without resolving the service state.
 
-## AI conversation
+## Public Cloudflare demo
+
+The standalone Cloudflare deployment supports separate guest sessions, all three demo service modes and optional OpenAI conversation. Session signatures prevent callers from choosing another visitor's identity. See [Cloudflare deployment](docs/CLOUDFLARE.md). The original Sites identity remains preserved; this deployment does not depend on restored Sites access. [Try the demo](https://jollibee-chatbot-demo.matthewvu2208.workers.dev). This publication uses scripted conversation; OpenAI is intentionally not enabled.
+
+## AI conversation setup
 Optional server-side OpenAI Responses integration with conversational history and validated draft patches. No order/payment tools are exposed to the model. UI explicitly distinguishes configured AI, scripted demo and provider failure. API credentials are never sent to the browser. Setup: [Bật AI](docs/BAT-AI.md). Contract tests: `tests/ai-chat-check.mjs` (bundle `lib/ai-chat.ts` to `.sites-runtime/ai-chat-test.mjs` with esbuild first); mocks are not live-model evaluation.

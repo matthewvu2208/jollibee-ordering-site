@@ -1,9 +1,22 @@
 import handler from "vinext/server/fetch-handler";
 import { runWithConnectorBinding } from "../lib/connector-context";
 import type { ConnectorBinding } from "../lib/connector-contract.mjs";
+import { prepareDemoRequest } from "../lib/demo-session";
 
 export default {
-  fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
+  async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
+    let cookie: string | undefined;
+    if (env.PUBLIC_DEMO === 'true') {
+      const session = await prepareDemoRequest(request, env.DEMO_SESSION_SECRET);
+      if ('response' in session) return session.response;
+      request = session.request;
+      cookie = session.cookie;
+      if (new URL(request.url).pathname === '/signin-with-chatgpt') {
+        const headers = new Headers({'Location': '/', 'Cache-Control': 'private, no-store'});
+        if (cookie) headers.set('Set-Cookie', cookie);
+        return new Response(null, {status: 302, headers});
+      }
+    }
     let binding = ctx.props?.CONNECTORS;
     // Local preview emulates the same request-scoped capability. This branch and
     // the auxiliary service binding are absent from production builds.
@@ -23,6 +36,12 @@ export default {
         },
       };
     }
-    return runWithConnectorBinding(binding, () => handler.fetch(request, env, ctx));
+    const result = await runWithConnectorBinding(binding, () => handler.fetch(request, env, ctx));
+    if (env.PUBLIC_DEMO !== 'true') return result;
+    const response = new Response(result.body, result);
+    response.headers.set('Cache-Control', 'private, no-store');
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    if (cookie) response.headers.append('Set-Cookie', cookie);
+    return response;
   },
 };

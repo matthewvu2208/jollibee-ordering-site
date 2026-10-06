@@ -1,5 +1,6 @@
 import {env} from 'cloudflare:workers';
 import {generateAnswer,requestSchema} from '@/lib/ai-chat';
+import {reserveDemoReply} from '@/lib/demo-quota';
 export const dynamic='force-dynamic';
 const limits=new Map<string,{count:number;until:number}>();
 const json=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
@@ -19,7 +20,10 @@ export async function POST(req:Request){
  try{let bytes=0;const decoder=new TextDecoder();while(true){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;if(bytes>32000){await reader.cancel();return json({error:'BODY_TOO_LARGE'},413);}raw+=decoder.decode(value,{stream:true});}raw+=decoder.decode();}catch{return json({error:'BODY'},400);}
  const parsed=requestSchema.safeParse((()=>{try{return JSON.parse(raw);}catch{return null;}})());
  if(!parsed.success)return json({error:'BODY'},400);
- try{return json({...await generateAnswer(parsed.data,key,model),source:'ai'});}catch(e){
+ try{
+  if(env.PUBLIC_DEMO==='true'&&!await reserveDemoReply(env.DB,id,env.AI_DAILY_LIMIT))return json({error:'AI_DEMO_LIMIT'},429);
+  return json({...await generateAnswer(parsed.data,key,model),source:'ai'});
+ }catch(e){
   return json({error:e instanceof Error&&e.message==='AI_CREDITS_EXHAUSTED'?'AI_CREDITS_EXHAUSTED':'AI_UNAVAILABLE'},502);
  }
 }
