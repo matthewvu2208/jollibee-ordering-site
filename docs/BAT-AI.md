@@ -1,11 +1,12 @@
 # Bật AI hội thoại cho Jollibee
 
-Đã có kết nối OpenAI Responses API trên máy chủ. Hiện chưa cấu hình API key nên website vẫn hiển thị **Chế độ kịch bản · Chưa kết nối AI**. Câu đùa trong chế độ này là câu viết sẵn, không phải phản hồi từ mô hình AI.
+Kết nối OpenAI hiện mặc định **tắt** theo yêu cầu ngày 08/10/2026, kể cả khi máy đã có API key. Chatbot chạy theo kịch bản và không gửi tin nhắn đến OpenAI. Câu đùa trong chế độ này là câu viết sẵn.
 
 ## Cấu hình trên máy Mac
 
 1. Tạo API key tại https://platform.openai.com/api-keys và kiểm tra dự án API có hạn mức sử dụng. Việc có quyền dùng ChatGPT không xác nhận dự án API đã được cấu hình.
 
+2. Chỉ khi muốn bật lại AI, tạo tệp `.dev.vars` ở thư mục gốc dự án và cấu hình `OPENAI_CHAT_ENABLED=true`, `OPENAI_API_KEY` và `OPENAI_MODEL`. Đặt `OPENAI_CHAT_ENABLED=false` hoặc bỏ biến này để giữ chatbot theo kịch bản.
 
 3. Thay giá trị mẫu bằng key của bạn ngay trong tệp trên máy. Không gửi key qua chat, không đưa vào mã giao diện, không dùng tiền tố NEXT_PUBLIC hoặc VITE cho key. `.dev.vars*` đã được loại khỏi Git.
 4. Khởi động lại máy chủ: dừng `npm run dev` đang chạy bằng Ctrl+C trong Terminal, rồi chạy lại `npm run dev` trong thư mục dự án. Mở địa chỉ được in ra và tải lại trang.

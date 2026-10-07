@@ -40,7 +40,7 @@ Chỉ chia sẻ URL `workers.dev` thật do lệnh xuất bản thành công tr�
 
 ## AI hội thoại tùy chọn
 
-Nếu chưa cấu hình `OPENAI_API_KEY` dưới dạng Cloudflare secret, chatbot chạy theo kịch bản và thông báo rõ chế độ đó. Không tải `.dev.vars` lên GitHub hoặc thư mục public. Chỉ chuyển API key lên Cloudflare khi chủ tài khoản đồng ý; các lời gọi AI sử dụng hạn mức và phí API của chủ key.
+Kết nối OpenAI mặc định tắt (`OPENAI_CHAT_ENABLED=false`). Chỉ khi chủ tài khoản muốn bật lại mới chuyển biến này thành `true` và cấu hình key. Nếu chưa cấu hình `OPENAI_API_KEY` dưới dạng Cloudflare secret, chatbot chạy theo kịch bản và thông báo rõ chế độ đó. Không tải `.dev.vars` lên GitHub hoặc thư mục public. Chỉ chuyển API key lên Cloudflare khi chủ tài khoản đồng ý; các lời gọi AI sử dụng hạn mức và phí API của chủ key.
 
 Khi bật AI, mặc định toàn website giới hạn 100 lượt gọi/ngày UTC và mỗi phiên khách 30 lượt/ngày UTC; lượt thử gọi thất bại cũng được tính. Giới hạn toàn website có thể chỉnh bằng biến `AI_DAILY_LIMIT`, tối đa 500. Các giới hạn được lưu trong D1 để áp dụng xuyên suốt các Worker instance. Ngoài ra endpoint có giới hạn theo phút. Khi hết lượt, khách vẫn chọn món, đặt bàn và xác nhận đơn bằng các điều khiển trên website được.
 

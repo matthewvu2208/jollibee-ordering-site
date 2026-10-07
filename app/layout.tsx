@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./ordering-ui.css";
 
 export const metadata: Metadata = {
   title: "Jollibee — Đặt món theo cách của bạn",

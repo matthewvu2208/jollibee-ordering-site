@@ -4,13 +4,14 @@ import {reserveDemoReply} from '@/lib/demo-quota';
 export const dynamic='force-dynamic';
 const limits=new Map<string,{count:number;until:number}>();
 const json=(body:unknown,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'no-store'}});
-const config=()=>({key:env.OPENAI_API_KEY?.trim(),model:env.OPENAI_MODEL?.trim()||'gpt-4.1-mini'});
-export async function GET(){return json({enabled:!!config().key});}
+const config=()=>env.OPENAI_CHAT_ENABLED==='true'?({key:env.OPENAI_API_KEY?.trim(),model:env.OPENAI_MODEL?.trim()||'gpt-4.1-mini'}):null;
+export async function GET(){return json({enabled:!!config()?.key});}
 export async function POST(req:Request){
+ const configured=config();if(!configured?.key)return json({error:'AI_NOT_CONFIGURED'},503);
+ const {key,model}=configured;
  if(!req.headers.get('oai-authenticated-user-id'))return json({error:'AUTH'},401);
  if(req.headers.get('origin')!==new URL(req.url).origin)return json({error:'ORIGIN'},403);
  if(!req.headers.get('content-type')?.includes('application/json'))return json({error:'BODY'},415);
- const {key,model}=config();if(!key)return json({error:'AI_NOT_CONFIGURED'},503);
  const now=Date.now(),id=req.headers.get('oai-authenticated-user-id')!;
  for(const [k,v] of limits)if(v.until<now)limits.delete(k);
  const bucket=limits.get(id)||{count:0,until:now+60000};

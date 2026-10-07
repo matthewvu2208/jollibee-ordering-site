@@ -19,7 +19,7 @@ const deploymentFile = '.sites-runtime/cloudflare-deployment.json';
 const deployment = cloudflareDemo && existsSync(deploymentFile) ? JSON.parse(readFileSync(deploymentFile, 'utf8')) : {};
 
 const localBindingConfig = {
-  ...(cloudflareDemo ? {name: 'jollibee-chatbot-demo', account_id: deployment.account_id, compatibility_date: '2026-05-15', vars: {PUBLIC_DEMO: 'true', AI_DAILY_LIMIT: '100'}} : {}),
+  ...(cloudflareDemo ? {name: 'jollibee-chatbot-demo', account_id: deployment.account_id, compatibility_date: '2026-05-15', vars: {PUBLIC_DEMO: 'true', AI_DAILY_LIMIT: '100', OPENAI_CHAT_ENABLED: 'false'}} : {}),
   main: "./build/sites-worker.ts",
   compatibility_flags: ["nodejs_compat"],
   d1_databases: d1
