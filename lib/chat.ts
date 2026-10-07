@@ -16,7 +16,7 @@ const titles:Record<Mode,string>={delivery:'giao tận nơi',pickup:'mang về',
 
 /** One pending question, shared by chat replies and service-tab changes. */
 export function nextQuestion(d:Draft):{slot:ChatSlot;text:string}{
-  if(d.mode!=='delivery'&&!d.branch)return {slot:'branch',text:'Bạn muốn ghé địa điểm ở quận nào ạ?'};
+  if(d.mode!=='delivery'&&!d.branch)return {slot:'branch',text:d.mode==='pickup'?'Các địa điểm lấy món trong bản trải nghiệm gồm Quận 1, Quận 2, Quận 3, Quận 4 và Quận 5. Khách yêu nhà mình muốn ghé địa điểm nào để lấy món ạ?':'Bạn muốn ghé địa điểm ở quận nào ạ?'};
   if(d.mode==='table'&&!d.people)return {slot:'people',text:'Bàn mình có mấy người ạ?'};
   if(d.mode!=='table'&&!Object.keys(d.cart).length)return {slot:'cart',text:'Bạn muốn dùng món gì hôm nay ạ?'};
   if(d.mode==='delivery'&&!d.address)return {slot:'address',text:'Mình giao đến địa chỉ nào cho bạn ạ?'};
@@ -27,7 +27,7 @@ export function nextQuestion(d:Draft):{slot:ChatSlot;text:string}{
 }
 export function serviceReply(d:Draft):ChatReply{
   const question=d.mode==='delivery'?{slot:'cart' as ChatSlot,text:'Bạn cứ chọn món nhé. Khi chọn xong, nhắn “Mình chọn xong” để mình hỗ trợ bước tiếp theo.'}:nextQuestion(d);
-  return {draft:d,changed:true,awaiting:question.slot,reply:`Dạ, mình hỗ trợ ${titles[d.mode]} nhé. ${question.text}`};
+  return {draft:d,changed:true,awaiting:question.slot,reply:d.mode==='pickup'?question.text:`Dạ, mình hỗ trợ ${titles[d.mode]} nhé. ${question.text}`};
 }
 export function quickReplies(slot:ChatSlot,d:Draft):string[]{
   if(slot==='mode')return ['Giao tận nơi','Mua mang về','Đặt bàn'];
@@ -113,7 +113,7 @@ export function parseChat(input:string,d:Draft,awaiting:ChatSlot=null):ChatReply
   }
   const changed=JSON.stringify(next)!==JSON.stringify(d);
   const question=nextQuestion(next);
-  const ack=explicitMode&&changes.length===1?`Dạ, mình hỗ trợ ${titles[next.mode]} nhé.`:changes.length>2?'Dạ, mình đã ghi lại các thông tin bạn vừa gửi.':changes.length?'Dạ, mình đã '+changes.join(' và ')+'.':'';
+  const ack=explicitMode&&changes.length===1?(next.mode==='pickup'?'':`Dạ, mình hỗ trợ ${titles[next.mode]} nhé.`):changes.length>2?'Dạ, mình đã ghi lại các thông tin bạn vừa gửi.':changes.length?'Dạ, mình đã '+changes.join(' và ')+'.':'';
   if(issue)return {draft:next,changed,awaiting:issueSlot||question.slot,reply:[ack,issue].filter(Boolean).join(' ')};
   const cartChanged=JSON.stringify(next.cart)!==JSON.stringify(d.cart);
   if(cartChanged&&next.mode!=='table'&&!finished){

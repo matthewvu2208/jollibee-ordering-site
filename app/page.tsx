@@ -36,7 +36,7 @@ useEffect(()=>{const context=(document as any).modelContext;if(!context?.registe
 function patch(p:Partial<Draft>){setDraft(d=>({...d,...p}));setAck(false);idempotency.current='';}
 function changeQty(id:string,delta:number){const cart={...draft.cart},q=Math.max(0,Math.min(20,(cart[id]||0)+delta));if(q)cart[id]=q;else delete cart[id];patch({cart});if(delta>0)setNotice('Đã thêm món vào giỏ');}
 function open(m:Modal){setError('');setModal(m);if(m==='checkout')setAck(false);}
-function changeMode(mode:Mode){chatEpoch.current++;if(editing&&mode!==draft.mode){setNotice('Kết thúc sửa đơn trước khi đổi hình thức phục vụ.');return;}const next={...draft,mode,when:mode!=='delivery'&&draft.when==='asap'?'':draft.when};const result=serviceReply(next);patch(next);setAwaiting(result.awaiting);setMessages(ms=>[...ms,{who:'bot',text:result.reply}]);}
+function changeMode(mode:Mode){if(mode===draft.mode)return;chatEpoch.current++;if(editing&&mode!==draft.mode){setNotice('Kết thúc sửa đơn trước khi đổi hình thức phục vụ.');return;}const next={...draft,mode,when:mode!=='delivery'&&draft.when==='asap'?'':draft.when};const result=serviceReply(next);patch(next);setAwaiting(result.awaiting);setMessages(ms=>[...ms,{who:'user',text:modes[mode]},{who:'bot',text:result.reply}]);}
 async function send(text=input){
  if(!text.trim()||chatLock.current)return;
  const snapshot=draft,epoch=chatEpoch.current,history=messages.slice(-16),pendingSlot=awaiting;
