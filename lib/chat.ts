@@ -17,7 +17,7 @@ const titles:Record<Mode,string>={delivery:'giao tận nơi',pickup:'mang về',
 
 /** One pending question, shared by chat replies and service-tab changes. */
 export function nextQuestion(d:Draft):{slot:ChatSlot;text:string}{
-  if(d.mode!=='delivery'&&!getBranch(d.branch))return {slot:'branch',text:`Mình có ${branches.map(b=>b.shortName).join(', ')}. Khách yêu nhà mình muốn ghé chi nhánh nào ${d.mode==='pickup'?'để lấy món':'để dùng bữa'} ạ?`};
+  if(d.mode!=='delivery'&&!getBranch(d.branch))return {slot:'branch',text:`Các chi nhánh Jollibee bạn có thể ghé:\n\n${branches.map(b=>`• ${b.name}\n${b.address}`).join('\n\n')}\n\nKhách yêu nhà mình muốn ghé chi nhánh nào ${d.mode==='pickup'?'để lấy món':'để dùng bữa'} ạ?`};
   if(d.mode==='table'&&!d.people)return {slot:'people',text:'Bàn mình có mấy người ạ?'};
   if(d.mode!=='table'&&!Object.keys(d.cart).length)return {slot:'cart',text:'Bạn muốn dùng món gì hôm nay ạ?'};
   if(d.mode==='delivery'&&!d.address)return {slot:'address',text:'Mình giao đến địa chỉ nào cho bạn ạ?'};
@@ -56,7 +56,7 @@ export function parseChat(input:string,d:Draft,awaiting:ChatSlot=null):ChatReply
   }
 
   const branchInfo=findBranch(text);
-  if(branchInfo&&/dia chi|o dau|gio mo|gio dong|may gio|thong tin/.test(s)&&!/(?:chon|dat ban|mang ve|lay tai|nhan tai quay)/.test(s))return stay(`${branchInfo.name}: ${branchInfo.address}. Giờ mở cửa ${branchInfo.opens}–${branchInfo.closes}. ${branchInfo.description}`);
+  if(branchInfo&&/dia chi|o dau|gio mo|gio dong|may gio|thong tin/.test(s)&&!/(?:chon|dat ban|mang ve|lay tai|nhan tai quay)/.test(s))return stay(`${branchInfo.name}\nĐịa chỉ: ${branchInfo.address}\nGiờ mở cửa: ${branchInfo.opens}–${branchInfo.closes}\n\n${branchInfo.description}`);
 
   const finished=/^(?:(?:minh|toi) )?(?:chon xong|xong|du roi|vay thoi|chot don|tinh tien|thanh toan|xac nhan|dat di)(?: roi)?(?: nhe| nha| a)?[.!\s]*$/.test(s);
   const next:Draft={...d,cart:{...d.cart}};
@@ -136,6 +136,6 @@ export function parseChat(input:string,d:Draft,awaiting:ChatSlot=null):ChatReply
   }
   // Do not repeat a pending question whenever the customer adjusts the cart.
   const followUp=question.slot!==awaiting||explicitMode||!question.slot?question.text:'';
-  const locationInfo=selectedBranch?`${selectedBranch.address}. Giờ mở cửa ${selectedBranch.opens}–${selectedBranch.closes}.`:'';
-  return {draft:next,changed,awaiting:question.slot,reply:[ack,locationInfo,followUp].filter(Boolean).join(' ')};
+  const locationInfo=selectedBranch?`Địa chỉ: ${selectedBranch.address}\nGiờ mở cửa: ${selectedBranch.opens}–${selectedBranch.closes}`:'';
+  return {draft:next,changed,awaiting:question.slot,reply:[ack,locationInfo,followUp].filter(Boolean).join(selectedBranch?'\n\n':' ')};
 }
