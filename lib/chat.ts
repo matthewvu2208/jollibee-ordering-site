@@ -1,4 +1,5 @@
 import {products, money} from './catalog';
+import {branches,findBranch,getBranch} from './branches';
 import {normalize, type Draft, type Mode} from './order';
 
 export type ChatSlot = 'welcome'|'mode'|'cart'|'address'|'branch'|'people'|'when'|'name'|'phone'|null;
@@ -16,7 +17,7 @@ const titles:Record<Mode,string>={delivery:'giao tận nơi',pickup:'mang về',
 
 /** One pending question, shared by chat replies and service-tab changes. */
 export function nextQuestion(d:Draft):{slot:ChatSlot;text:string}{
-  if(d.mode!=='delivery'&&!d.branch)return {slot:'branch',text:d.mode==='pickup'?'Các địa điểm lấy món trong bản trải nghiệm gồm Quận 1, Quận 2, Quận 3, Quận 4 và Quận 5. Khách yêu nhà mình muốn ghé địa điểm nào để lấy món ạ?':'Bạn muốn ghé địa điểm ở quận nào ạ?'};
+  if(d.mode!=='delivery'&&!getBranch(d.branch))return {slot:'branch',text:`Mình có ${branches.map(b=>b.shortName).join(', ')}. Khách yêu nhà mình muốn ghé chi nhánh nào ${d.mode==='pickup'?'để lấy món':'để dùng bữa'} ạ?`};
   if(d.mode==='table'&&!d.people)return {slot:'people',text:'Bàn mình có mấy người ạ?'};
   if(d.mode!=='table'&&!Object.keys(d.cart).length)return {slot:'cart',text:'Bạn muốn dùng món gì hôm nay ạ?'};
   if(d.mode==='delivery'&&!d.address)return {slot:'address',text:'Mình giao đến địa chỉ nào cho bạn ạ?'};
@@ -31,7 +32,7 @@ export function serviceReply(d:Draft):ChatReply{
 }
 export function quickReplies(slot:ChatSlot,d:Draft):string[]{
   if(slot==='mode')return ['Giao tận nơi','Mua mang về','Đặt bàn'];
-  if(slot==='branch')return ['Quận 1','Quận 2','Quận 3','Quận 4','Quận 5'];
+  if(slot==='branch')return branches.map(b=>b.shortName);
   if(slot==='people')return ['2 người','4 người','6 người'];
   if(slot==='when')return d.mode==='delivery'?['Nhận sớm nhất']:[];
   if(slot==='cart')return Object.keys(d.cart).length?['Mình chọn xong']:['Gợi ý món cho mình'];
@@ -54,6 +55,9 @@ export function parseChat(input:string,d:Draft,awaiting:ChatSlot=null):ChatReply
     return stay(found.map(p=>`${p.name}: ${money(p.price)}`).join('. ')+'. Đây là giá tham khảo; mình chưa thêm món vào giỏ nhé.');
   }
 
+  const branchInfo=findBranch(text);
+  if(branchInfo&&/dia chi|o dau|gio mo|gio dong|may gio|thong tin/.test(s)&&!/(?:chon|dat ban|mang ve|lay tai|nhan tai quay)/.test(s))return stay(`${branchInfo.name}: ${branchInfo.address}. Giờ mở cửa ${branchInfo.opens}–${branchInfo.closes}. ${branchInfo.description}`);
+
   const finished=/^(?:(?:minh|toi) )?(?:chon xong|xong|du roi|vay thoi|chot don|tinh tien|thanh toan|xac nhan|dat di)(?: roi)?(?: nhe| nha| a)?[.!\s]*$/.test(s);
   const next:Draft={...d,cart:{...d.cart}};
   const changes:string[]=[];
@@ -65,9 +69,10 @@ export function parseChat(input:string,d:Draft,awaiting:ChatSlot=null):ChatReply
   else if(/giao|ship/.test(s)){next.mode='delivery';explicitMode=true;}
   if(explicitMode){if(next.mode!=='delivery'&&next.when==='asap')next.when='';changes.push(`chọn ${titles[next.mode]}`);}
 
-  const district=s.match(/(?:quan\s*|q\.?\s*)([1-5])\b/);
-  const bareDistrict=awaiting==='branch'?s.match(/^([1-5])(?:\s*(?:nhe|a))?[.!]?$/):null;
-  if(district||bareDistrict){next.branch='Quận '+(district||bareDistrict)![1];if(next.mode!=='delivery')changes.push('chọn địa điểm '+next.branch);}
+  const bareDistrict=awaiting==='branch'?s.match(/^(\d{1,2})(?:\s*(?:nhe|a))?[.!]?$/):null;
+  const selectedBranch=next.mode!=='delivery'?findBranch(bareDistrict?'quận '+bareDistrict[1]:text):undefined;
+  if(selectedBranch){next.branch=selectedBranch.name;changes.push('chọn chi nhánh '+selectedBranch.shortName);}
+  else if(next.mode!=='delivery'&&/(?:quan\s*|q\.?\s*)\d{1,2}\b/.test(s)){issue='Mình chưa có chi nhánh ở khu vực này trong danh sách. Bạn muốn chọn chi nhánh nào trong sáu lựa chọn bên dưới ạ?';issueSlot='branch';}
   const people=s.match(/(\d+)\s*(?:nguoi|khach)/)||(awaiting==='people'?s.match(/^(\d+)(?:\s*(?:nhe|a))?[.!]?$/):null);
   if(people){const n=+people[1];if(n<1||n>30){issue='Mình hỗ trợ bàn từ 1 đến 30 người trong bản thử nghiệm. Bàn mình có mấy người ạ?';issueSlot='people';}else{next.people=n;changes.push(`ghi nhận bàn ${n} người`);}}
 
@@ -131,5 +136,6 @@ export function parseChat(input:string,d:Draft,awaiting:ChatSlot=null):ChatReply
   }
   // Do not repeat a pending question whenever the customer adjusts the cart.
   const followUp=question.slot!==awaiting||explicitMode||!question.slot?question.text:'';
-  return {draft:next,changed,awaiting:question.slot,reply:[ack,followUp].filter(Boolean).join(' ')};
+  const locationInfo=selectedBranch?`${selectedBranch.address}. Giờ mở cửa ${selectedBranch.opens}–${selectedBranch.closes}.`:'';
+  return {draft:next,changed,awaiting:question.slot,reply:[ack,locationInfo,followUp].filter(Boolean).join(' ')};
 }

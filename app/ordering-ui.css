@@ -1,6 +1,6 @@
 /* Option A: menu first, conversation and cart beside it. */
 :root {
-  --chat-font: "Times New Roman", Times, serif;
+  --chat-font: var(--font-body);
   --control-line: color-mix(in oklab, var(--ink) 18%, var(--white));
   --item-hover: color-mix(in srgb, var(--ink) 5%, var(--white));
 }
@@ -62,7 +62,7 @@ input::placeholder, textarea::placeholder { color: var(--subtle); opacity: 1; }
 .assistant { border: 0; background: transparent; border-radius: 0; overflow: visible; display: flex; flex-direction: column; gap: 16px; top: 20px; }
 .conversation { display: flex; flex-direction: column; min-height: 350px; background: var(--white); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
 .assistant-header { padding: 16px 20px; justify-content: space-between; }
-.assistant-header h2 { font-family: var(--chat-font); font-size: 18px; font-weight: 600; letter-spacing: 0; }
+.assistant-header h2 { font-family: var(--font-display); font-size: 18px; font-weight: 600; letter-spacing: 0; }
 .assistant-header p { font-family: var(--chat-font); font-size: 13px; margin-top: 4px; }
 .assistant-header .chat-support { width: 40px; height: 40px; border-radius: 12px; color: var(--subtle); padding: 0; }
 .assistant-header .chat-support:hover { background: var(--item-hover); }
@@ -165,3 +165,15 @@ footer a { min-height: 32px; }
   footer a { min-height: 44px; }
   .assistant { max-height: none; overflow: visible; }
 }
+
+/* Store picker reuses the existing Select and details dialog. */
+.branch-select { max-width: min(460px,calc(100vw - 32px)); }
+.branch-select [data-slot=select-item] { align-items: flex-start; padding-block: 10px; margin-block: 4px; white-space: normal; }
+.branch-option { display: flex; flex-direction: column; gap: 4px; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.branch-option strong { font-size: 14px; font-weight: 500; line-height: 1.5; }
+.branch-option small { font-size: 12px; color: var(--subtle); line-height: 1.5; }
+.branch-details { display: flex; flex-direction: column; gap: 8px; padding: 16px; border-radius: 12px; background: var(--paper); }
+.branch-details strong { font-size: 14px; font-weight: 600; }
+.branch-details p { display: flex; align-items: flex-start; gap: 6px; color: var(--subtle); margin: 0; line-height: 1.5; }
+.branch-details svg { margin-top: 3px; }
+.field-note a { color: var(--red); text-decoration: underline; }

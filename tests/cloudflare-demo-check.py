@@ -39,7 +39,7 @@ call(first, {'action': 'preferences', 'clear': True})
 tomorrow = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)).isoformat()
 for mode in ['delivery', 'pickup', 'table']:
     draft = {'mode': mode, 'cart': {} if mode == 'table' else {'chickenjoy': 1},
-        'address': '123 Đường Kiểm Thử, Quận 1', 'branch': 'Quận 3', 'people': 2,
+        'address': '123 Đường Kiểm Thử, Quận 1', 'branch': 'Jollibee Pasteur', 'people': 2,
         'when': 'asap' if mode == 'delivery' else tomorrow, 'notes': 'QA cục bộ',
         'name': 'Khách thử nghiệm', 'phone': '0900000000'}
     order_id = str(uuid.uuid4())

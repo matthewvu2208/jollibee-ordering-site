@@ -16,7 +16,7 @@ d['cart']={'chickenjoy':1};assert call({'action':'update','id':id,'version':1,'d
 call({'action':'update','id':id,'version':1,'draft':d},400)
 call({'action':'accept_demo','id':id,'version':2});call({'action':'cancel','id':id,'version':3},400)
 for mode in ['pickup','table']:
- x={**d,'mode':mode,'branch':'Quận 3','when':when,'cart':{} if mode=='table' else {'fries':1}}
+ x={**d,'mode':mode,'branch':'Jollibee Pasteur','when':when,'cart':{} if mode=='table' else {'fries':1}}
  i=str(uuid.uuid4());o=call({'action':'order','id':i,'draft':x})['order'];assert o['total']==(0 if mode=='table' else 20000)
  call({'action':'cancel','id':i,'version':1})
 call({'action':'preferences','text':'Gà giòn, không cay','enabled':True});assert call()['preferences']['text']=='Gà giòn, không cay'

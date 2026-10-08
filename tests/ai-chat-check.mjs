@@ -6,6 +6,7 @@ const request={message:'ngon quá',history:[],draft:{...initialDraft,cart:{'spic
 const patch=()=>Object.fromEntries(['mode','cart','address','branch','people','when','notes','name','phone'].map(k=>[k,null]));
 const answer={reply:'Jollibee là ngon số 1 đấy! 😄',awaiting:'cart',patch:patch()};
 assert.equal(applyAnswer(answer,request).changed,false);
+assert.equal(applyAnswer({...answer,patch:{...patch(),branch:'Jollibee Hậu Giang'}},request).draft.branch,'Jollibee Hậu Giang');
 assert.equal(parseChat('Gà giòn ngon quá',request.draft,'cart').changed,false);
 assert.doesNotMatch(parseChat('không ngon',request.draft,'cart').reply,/số 1/);
 assert.equal(applyAnswer({...answer,patch:{...patch(),cart:[{id:'spicy-chicken',quantity:5}]}},request).draft.cart['spicy-chicken'],5);
@@ -15,6 +16,8 @@ for(const invalid of [
  {...patch(),cart:[{id:'spicy-chicken',quantity:1},{id:'spicy-chicken',quantity:2}]},
  {...patch(),price:0},
  {...patch(),status:'paid'},
+ {...patch(),branch:'Quận 1'},
+ {...patch(),branch:'Jollibee không có thật'},
  {...patch(),when:'2020-01-01T12:00'},
 ])assert.throws(()=>applyAnswer({...answer,patch:invalid},request));
 assert.throws(()=>applyAnswer({...answer,patch:{...patch(),mode:'table'}},{...request,editing:true}));

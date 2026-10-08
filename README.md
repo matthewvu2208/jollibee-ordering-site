@@ -12,7 +12,7 @@ Vietnamese ordering website built with Vinext, React, Cloudflare D1 and the Site
 - Mobile cart/chat shortcuts, keyboard controls, reduced-motion handling and browser WebMCP read/stage tools.
 
 ## Connection boundaries
-No POS, payment gateway, shipper, Grab/ShopeeFood API, live promotions, menu inventory, distance/geocoding, customer-service agent is connected. The OpenAI adapter is implemented but requires a server-side API key; it has not been validated against the live provider. See `docs/BAT-AI.md`. Districts 1–5 are demo locations, not confirmed branch addresses or table availability. Delivery fee 15,000 VND and 30–45 minute ETA are labeled samples. Requests are saved as demo records; they are not delivered to Jollibee. Refund requests have no real money and no promised processing SLA.
+No POS, payment gateway, shipper, Grab/ShopeeFood API, live promotions, menu inventory, distance/geocoding, customer-service agent is connected. The OpenAI adapter is implemented but requires a server-side API key; it has not been validated against the live provider. See `docs/BAT-AI.md`. The six named branches use addresses and hours checked against Jollibee’s official store list on 2026-10-08. Table availability and order acceptance are not connected. Delivery fee 15,000 VND and 30–45 minute ETA are labeled samples. Requests are saved as demo records; they are not delivered to Jollibee. Refund requests have no real money and no promised processing SLA.
 
 ## Local run
 Node >=22.13.0. Run `npm run install:ci`, then `npm run dev`. Open the printed loopback URL. Local sign-in is `/signin-with-chatgpt?return_to=/`; hosted sign-in is owned by Sites.
